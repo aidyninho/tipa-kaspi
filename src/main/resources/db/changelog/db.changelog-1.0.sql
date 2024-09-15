@@ -2,8 +2,9 @@
 
 --changeset aidyninho:1
 create table if not exists users (
-                                     id serial primary key ,
-                                     phone varchar(12) unique not null
+                                     phone varchar(12) primary key ,
+                                     password varchar(255) not null ,
+                                     role varchar(255) not null
 );
 
 create table if not exists currencies (
