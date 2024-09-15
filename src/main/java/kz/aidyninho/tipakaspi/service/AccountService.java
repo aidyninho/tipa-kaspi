@@ -9,32 +9,30 @@ import kz.aidyninho.tipakaspi.model.CurrencyShortName;
 import kz.aidyninho.tipakaspi.model.Limit;
 import kz.aidyninho.tipakaspi.model.User;
 import kz.aidyninho.tipakaspi.repository.AccountRepository;
-import kz.aidyninho.tipakaspi.repository.LimitRepository;
-import kz.aidyninho.tipakaspi.repository.UserRepository;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 @Service
+@Slf4j
 public class AccountService {
 
     private final AccountRepository accountRepository;
-    private final UserRepository userRepository;
-    private final LimitRepository limitRepository;
+    private final UserService userService;
+    private final LimitService limitService;
     private final CurrencyService currencyService;
 
-    public AccountService(AccountRepository accountRepository, UserRepository userRepository, LimitRepository limitRepository, CurrencyService currencyService) {
+    public AccountService(AccountRepository accountRepository, UserService userService, LimitService limitService, CurrencyService currencyService) {
         this.accountRepository = accountRepository;
-        this.userRepository = userRepository;
-        this.limitRepository = limitRepository;
+        this.userService = userService;
+        this.limitService = limitService;
         this.currencyService = currencyService;
     }
 
     public Account saveAccount(AccountDto accountDto) {
-        User owner = userRepository.findByPhone(accountDto.getUserPhone())
-                .orElseThrow(() -> new UsernameNotFoundException(accountDto.getUserPhone()));
+        User owner = userService.findByPhone(accountDto.getUserPhone());
 
         Limit limit = Limit.builder()
                 .currencyShortName(CurrencyShortName.USD)
@@ -51,32 +49,32 @@ public class AccountService {
                 .limit(limit)
                 .build();
 
-        limitRepository.save(limit);
+        limitService.save(limit);
+
+        log.info("Saving account {}", account);
         return accountRepository.save(account);
     }
 
     public Limit setLimit(LimitDto limitDto) {
-        Account account = accountRepository.findById(limitDto.getAccountId())
-                .orElseThrow(AccountNotFoundException::new);
+        Account account = findById(limitDto.getAccountId());
 
-        Limit limit = limitRepository.findById(account.getLimit().getId())
-                .orElseThrow(AccountNotFoundException::new);
-
+        Limit limit = limitService.findById(account.getLimit().getId());
         limit.setLimitSum(limitDto.getLimitSum());
         limit.setLimitDatetime(OffsetDateTime.now());
         account.setLimit(limit);
 
         accountRepository.save(account);
 
+        log.info("Setting limit {} to account {}", limit, account);
         return limit;
     }
 
     public Account topUpBalance(AccountUpdateDto accountUpdateDto) {
-        Account account = accountRepository.findById(accountUpdateDto.getId())
-                .orElseThrow(AccountNotFoundException::new);
+        Account account = findById(accountUpdateDto.getId());
 
         account.setBalance(account.getBalance().add(accountUpdateDto.getBalance()));
 
+        log.info("Top up balance {} for {}", account, account.getBalance());
         return accountRepository.save(account);
     }
 
@@ -85,20 +83,23 @@ public class AccountService {
     }
 
     public Account deposit(String id, BigDecimal amount) {
-        Account account = accountRepository.findById(id).orElseThrow(AccountNotFoundException::new);
+        Account account = findById(id);
         account.setBalance(account.getBalance().add(amount));
+
+        log.info("Deposit {} for {}", amount, account);
         return accountRepository.save(account);
     }
 
     public Account withdraw(String id, BigDecimal amount) {
-        Account account = accountRepository.findById(id).orElseThrow(AccountNotFoundException::new);
+        Account account = findById(id);
         account.setBalance(account.getBalance().subtract(amount));
-        Limit limit = limitRepository.findById(account.getLimit().getId())
-                .orElseThrow(AccountNotFoundException::new);
+        Limit limit = limitService.findById(account.getLimit().getId());
 
         limit.setCurrentSum(limit.getCurrentSum()
                 .add(currencyService.convertToUSD(account.getCurrencyShortName(), amount)));
         account.setLimit(limit);
+
+        log.info("Withdraw {} for {}", amount, account);
         return accountRepository.save(account);
     }
 }

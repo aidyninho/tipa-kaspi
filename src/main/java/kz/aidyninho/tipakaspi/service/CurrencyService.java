@@ -8,6 +8,7 @@ import kz.aidyninho.tipakaspi.model.CurrencyPair;
 import kz.aidyninho.tipakaspi.model.CurrencyResponse;
 import kz.aidyninho.tipakaspi.model.CurrencyShortName;
 import kz.aidyninho.tipakaspi.repository.CurrencyRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 public class CurrencyService {
 
     private final CurrencyRepository currencyRepository;
@@ -47,6 +49,7 @@ public class CurrencyService {
             throw new FailedToGetCurrencyFromSourceException("Failed to get currency from source " + url, e);
         }
 
+        log.info("Currency rates updated");
         return currencyRepository.findAll();
     }
 
@@ -80,7 +83,9 @@ public class CurrencyService {
         BigDecimal rate = currencyRepository.findById(new CurrencyPair(CurrencyShortName.USD, from))
                 .orElseThrow(CurrencyNotFoundException::new).getRate();
 
-        return amount.divide(rate, RoundingMode.HALF_EVEN);
+        BigDecimal result = amount.divide(rate, RoundingMode.HALF_EVEN);
+        log.info("Converted {} {} to USD by rate of {}. Result {} USD", amount, from, rate, result);
+        return result;
     }
 
     public BigDecimal convertFromUSD(CurrencyShortName to, BigDecimal amount) {
@@ -91,6 +96,8 @@ public class CurrencyService {
         BigDecimal rate = currencyRepository.findById(new CurrencyPair(CurrencyShortName.USD, to))
                 .orElseThrow(CurrencyNotFoundException::new).getRate();
 
-        return amount.multiply(rate);
+        BigDecimal result = amount.multiply(rate);
+        log.info("Converted {} from USD by rate of {}. Result {} {} ", amount, rate, result, to);
+        return result;
     }
 }

@@ -7,6 +7,7 @@ import kz.aidyninho.tipakaspi.model.Account;
 import kz.aidyninho.tipakaspi.model.Transaction;
 import kz.aidyninho.tipakaspi.model.TransactionStatus;
 import kz.aidyninho.tipakaspi.repository.TransactionRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -14,6 +15,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 @Service
+@Slf4j
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
@@ -41,13 +43,19 @@ public class TransactionService {
 
         if (accountFromBalanceUSD.compareTo(transactionDto.getSum()) < 0) {
             transaction.setStatus(TransactionStatus.NOT_ENOUGH_BALANCE);
-            return transactionRepository.save(transaction);
+
+            Transaction savedTransaction = transactionRepository.save(transaction);
+            log.info("Not enough balance for making transaction {}", savedTransaction.getId());
+            return savedTransaction;
         }
 
         if (accountFrom.getLimit().getCurrentSum().add(transactionDto.getSum())
                 .compareTo(accountFrom.getLimit().getLimitSum()) > 0) {
             transaction.setStatus(TransactionStatus.LIMIT_EXCEEDED);
-            return transactionRepository.save(transaction);
+
+            Transaction savedTransaction = transactionRepository.save(transaction);
+            log.info("Limit exceeded for making transaction {}", savedTransaction.getId());
+            return savedTransaction;
         }
 
         accountService.withdraw(
@@ -62,11 +70,15 @@ public class TransactionService {
 
         transaction.setStatus(TransactionStatus.SUCCESS);
 
-        return transactionRepository.save(transaction);
+        Transaction savedTransaction = transactionRepository.save(transaction);
+        log.info("Transaction {} successfully made", savedTransaction.getId());
+        return savedTransaction;
     }
 
     public List<Transaction> findAllTransactionsByAccountIdAndStatus(TransactionReadDto transactionReadDto) {
         Account account = accountService.findById(transactionReadDto.getAccountId());
+
+        log.info("Finding transactions by accountId {}", account.getId());
         return transactionRepository.findAllByAccountFromAndStatus(
                 account,
                 transactionReadDto.getTransactionStatus()
