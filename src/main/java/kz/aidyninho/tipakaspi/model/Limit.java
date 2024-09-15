@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -20,28 +20,27 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "accounts")
+@Table(name = "limits")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class Account {
+public class Limit {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    private BigDecimal limitSum;
+    private BigDecimal currentSum;
     @Enumerated(EnumType.STRING)
     private CurrencyShortName currencyShortName;
-    private BigDecimal balance;
-    @ManyToOne
-    @JoinColumn(name = "user_phone")
+    private OffsetDateTime limitDatetime;
+    @OneToOne(mappedBy = "limit")
     @ToString.Exclude
     @JsonIgnore
-    private User user;
-    @OneToOne
-    @JoinColumn(name = "limit_id")
-    @JsonIgnore
-    private Limit limit;
+    private Account account;
 }
