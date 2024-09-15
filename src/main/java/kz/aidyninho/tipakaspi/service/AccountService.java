@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.Optional;
 
 @Service
 public class AccountService {
@@ -23,11 +24,13 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
     private final LimitRepository limitRepository;
+    private final CurrencyService currencyService;
 
-    public AccountService(AccountRepository accountRepository, UserRepository userRepository, LimitRepository limitRepository) {
+    public AccountService(AccountRepository accountRepository, UserRepository userRepository, LimitRepository limitRepository, CurrencyService currencyService) {
         this.accountRepository = accountRepository;
         this.userRepository = userRepository;
         this.limitRepository = limitRepository;
+        this.currencyService = currencyService;
     }
 
     public Account saveAccount(AccountDto accountDto) {
@@ -84,6 +87,28 @@ public class AccountService {
 
         account.setBalance(account.getBalance().add(accountUpdateDto.getBalance()));
 
+        return accountRepository.save(account);
+    }
+
+    public Account findById(String id) {
+        return accountRepository.findById(id).orElseThrow(AccountNotFoundException::new);
+    }
+
+    public Account deposit(String id, BigDecimal amount) {
+        Account account = accountRepository.findById(id).orElseThrow(AccountNotFoundException::new);
+        account.setBalance(account.getBalance().add(amount));
+        return accountRepository.save(account);
+    }
+
+    public Account withdraw(String id, BigDecimal amount) {
+        Account account = accountRepository.findById(id).orElseThrow(AccountNotFoundException::new);
+        account.setBalance(account.getBalance().subtract(amount));
+        Limit limit = limitRepository.findById(account.getLimit().getId())
+                .orElseThrow(AccountNotFoundException::new);
+
+        limit.setCurrentSum(limit.getCurrentSum()
+                .add(currencyService.convertToUSD(account.getCurrencyShortName(), amount)));
+        account.setLimit(limit);
         return accountRepository.save(account);
     }
 }
