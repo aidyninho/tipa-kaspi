@@ -1,6 +1,7 @@
 package kz.aidyninho.tipakaspi.service;
 
 import jakarta.transaction.Transactional;
+import kz.aidyninho.tipakaspi.exception.FailedToGetCurrencyFromSourceException;
 import kz.aidyninho.tipakaspi.model.Currency;
 import kz.aidyninho.tipakaspi.model.CurrencyPair;
 import kz.aidyninho.tipakaspi.model.CurrencyResponse;
@@ -32,12 +33,16 @@ public class CurrencyService {
 
     @Transactional
     public List<Currency> updateCurrencyRates() {
-        webClient.get()
-                .uri(url)
-                .retrieve()
-                .bodyToMono(CurrencyResponse.class)
-                .doOnSuccess(response -> currencyRepository.saveAll(getCurrencyFromResponse(response)))
-                .subscribe();
+        try {
+            webClient.get()
+                    .uri(url)
+                    .retrieve()
+                    .bodyToMono(CurrencyResponse.class)
+                    .doOnSuccess(response -> currencyRepository.saveAll(getCurrencyFromResponse(response)))
+                    .block();
+        } catch (RuntimeException e) {
+            throw new FailedToGetCurrencyFromSourceException("Failed to get currency from source " + url, e);
+        }
 
         return currencyRepository.findAll();
     }
