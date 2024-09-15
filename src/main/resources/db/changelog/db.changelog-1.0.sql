@@ -18,7 +18,8 @@ create table if not exists currencies (
 create table if not exists accounts (
                                         id varchar(10) primary key ,
                                         currency_short_name varchar(3) ,
-                                        balance numeric default 0.0
+                                        balance numeric default 0.0 ,
+                                        user_phone varchar(12) references users(phone)
 );
 
 create table if not exists transactions (

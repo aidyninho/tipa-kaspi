@@ -1,6 +1,8 @@
 package kz.aidyninho.tipakaspi.model;
 
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +17,8 @@ import java.io.Serializable;
 @Setter
 public class CurrencyPair implements Serializable {
 
-    private String currencyFrom;
-    private String currencyTo;
+    @Enumerated(EnumType.STRING)
+    private CurrencyShortName currencyFrom;
+    @Enumerated(EnumType.STRING)
+    private CurrencyShortName currencyTo;
 }

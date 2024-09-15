@@ -1,10 +1,12 @@
 package kz.aidyninho.tipakaspi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,24 +15,25 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.math.BigDecimal;
 
 @Entity
-@Table(name = "users")
+@Table(name = "accounts")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class User {
+public class Account {
 
     @Id
-    private String phone;
-    private String password;
-    @Enumerated(value = EnumType.STRING)
-    private Role role;
-    @OneToMany(mappedBy = "user")
+    private String id;
+    @Enumerated(EnumType.STRING)
+    private CurrencyShortName currencyShortName;
+    private BigDecimal balance;
+    @ManyToOne
+    @JoinColumn(name = "user_phone")
     @ToString.Exclude
-    private Set<Account> accounts = new HashSet<>();
+    @JsonIgnore
+    private User user;
 }

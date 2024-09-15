@@ -5,6 +5,7 @@ import kz.aidyninho.tipakaspi.exception.FailedToGetCurrencyFromSourceException;
 import kz.aidyninho.tipakaspi.model.Currency;
 import kz.aidyninho.tipakaspi.model.CurrencyPair;
 import kz.aidyninho.tipakaspi.model.CurrencyResponse;
+import kz.aidyninho.tipakaspi.model.CurrencyShortName;
 import kz.aidyninho.tipakaspi.repository.CurrencyRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -52,7 +53,9 @@ public class CurrencyService {
         String base = currencyResponse.getBase();
 
         for (String currency : currencyResponse.getRates().keySet()) {
-            CurrencyPair currencyPair = new CurrencyPair(base, currency);
+            CurrencyPair currencyPair = new CurrencyPair(
+                    CurrencyShortName.valueOf(base), CurrencyShortName.valueOf(currency)
+            );
             Instant instant = Instant.ofEpochSecond(Long.parseLong(currencyResponse.getTimestamp()));
 
             Currency currency1 = Currency.builder()
