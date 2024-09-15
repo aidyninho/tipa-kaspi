@@ -38,8 +38,8 @@ create table if not exists accounts
 create table if not exists transactions
 (
     id               bigserial primary key,
-    account_from     varchar(10) references accounts (id),
-    account_to       varchar(10) references accounts (id),
+    account_from_id  varchar(10) references accounts (id),
+    account_to_id    varchar(10) references accounts (id),
     sum              numeric      not null,
     expense_category varchar(255) not null,
     datetime         timestamptz  not null,

@@ -1,20 +1,19 @@
 package kz.aidyninho.tipakaspi.dto;
 
+import kz.aidyninho.tipakaspi.model.TransactionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class LimitDto {
+public class TransactionReadDto {
 
-    private BigDecimal limitSum;
     private String accountId;
+    private TransactionStatus transactionStatus;
 }

@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.util.Optional;
 
 @Service
 public class AccountService {
@@ -70,15 +69,6 @@ public class AccountService {
         accountRepository.save(account);
 
         return limit;
-    }
-
-    public Account update(AccountUpdateDto accountUpdateDto) {
-        Account account = accountRepository.findById(accountUpdateDto.getId())
-                .orElseThrow(AccountNotFoundException::new);
-
-        account.setBalance(accountUpdateDto.getBalance());
-
-        return accountRepository.save(account);
     }
 
     public Account topUpBalance(AccountUpdateDto accountUpdateDto) {

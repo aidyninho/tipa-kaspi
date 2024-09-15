@@ -1,4 +1,7 @@
 package kz.aidyninho.tipakaspi.model;
 
-public class ExpenseCategory {
+public enum ExpenseCategory {
+
+    GOODS,
+    SERVICES
 }

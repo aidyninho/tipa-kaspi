@@ -1,6 +1,7 @@
 package kz.aidyninho.tipakaspi.service;
 
 import jakarta.transaction.Transactional;
+import kz.aidyninho.tipakaspi.exception.CurrencyNotFoundException;
 import kz.aidyninho.tipakaspi.exception.FailedToGetCurrencyFromSourceException;
 import kz.aidyninho.tipakaspi.model.Currency;
 import kz.aidyninho.tipakaspi.model.CurrencyPair;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -68,5 +70,27 @@ public class CurrencyService {
         }
 
         return currencies;
+    }
+
+    public BigDecimal convertToUSD(CurrencyShortName from, BigDecimal amount) {
+        if (from == CurrencyShortName.USD) {
+            return amount;
+        }
+
+        BigDecimal rate = currencyRepository.findById(new CurrencyPair(CurrencyShortName.USD, from))
+                .orElseThrow(CurrencyNotFoundException::new).getRate();
+
+        return amount.divide(rate, RoundingMode.HALF_EVEN);
+    }
+
+    public BigDecimal convertFromUSD(CurrencyShortName to, BigDecimal amount) {
+        if (to == CurrencyShortName.USD) {
+            return amount;
+        }
+
+        BigDecimal rate = currencyRepository.findById(new CurrencyPair(CurrencyShortName.USD, to))
+                .orElseThrow(CurrencyNotFoundException::new).getRate();
+
+        return amount.multiply(rate);
     }
 }

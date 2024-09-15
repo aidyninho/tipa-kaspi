@@ -1,34 +1,34 @@
 package kz.aidyninho.tipakaspi.api;
 
-import kz.aidyninho.tipakaspi.dto.LimitDto;
-import kz.aidyninho.tipakaspi.model.Limit;
-import kz.aidyninho.tipakaspi.service.AccountService;
-import kz.aidyninho.tipakaspi.service.LimitService;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PutMapping;
+import kz.aidyninho.tipakaspi.dto.TransactionDto;
+import kz.aidyninho.tipakaspi.dto.TransactionReadDto;
+import kz.aidyninho.tipakaspi.model.Transaction;
+import kz.aidyninho.tipakaspi.service.TransactionService;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1")
-public class LimitRestController {
+public class TransactionRestController {
 
-    private final AccountService accountService;
-    private final LimitService limitService;
+    private final TransactionService transactionService;
 
-    public LimitRestController(AccountService accountService, LimitService limitService) {
-        this.accountService = accountService;
-        this.limitService = limitService;
+    public TransactionRestController(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
-    @PutMapping("/limits")
-    public Limit setLimit(@RequestBody LimitDto limitDto) {
-        return accountService.setLimit(limitDto);
+    @PostMapping("/transactions")
+    public Transaction makeTransaction(@RequestBody TransactionDto transactionDto) {
+        return transactionService.makeTransaction(transactionDto);
     }
 
-    @PatchMapping("/limits")
-    public Boolean resetLimits() {
-        return limitService.resetAllLimits();
+    @GetMapping("/transactions")
+    public List<Transaction> getTransactionsByAccountAndStatus(@RequestBody TransactionReadDto transactionDto) {
+        return transactionService.findAllTransactionsByAccountIdAndStatus(transactionDto);
     }
 }
