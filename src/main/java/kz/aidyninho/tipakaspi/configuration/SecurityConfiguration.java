@@ -21,9 +21,8 @@ public class SecurityConfiguration {
 
         http.csrf().disable()
                 .authorizeHttpRequests((requests) -> requests
-                                .anyRequest().permitAll()
-//                        .requestMatchers("/api/v1/routes/find", "/api/v1/users/save").permitAll()
-//                        .anyRequest().authenticated()
+                        .requestMatchers("/api/v1/users/save").permitAll()
+                        .anyRequest().authenticated()
                 ).httpBasic(Customizer.withDefaults())
                 .sessionManagement(httpSecuritySessionManagementConfigurer ->
                         httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
