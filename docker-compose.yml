@@ -1,0 +1,23 @@
+services:
+  backend:
+    image: aidyninho/tipa-kaspi:latest
+    container_name: 'tipa-kaspi'
+    depends_on:
+      - pgdb
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://pgdb:5432/postgres
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+    ports:
+      - 8080:8080
+
+  pgdb:
+    image: postgres
+    container_name: 'postgre'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 2345:5432
