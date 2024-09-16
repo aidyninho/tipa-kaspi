@@ -1,4 +1,4 @@
-# Ticket to Ride
+# tipa-kaspi 1.1
 - An API for money transferring between accounts in different currencies with frequent currency updates.
 ## Features
 - Get latest currency rates from external API.
