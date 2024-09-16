@@ -30,7 +30,6 @@
     docker-compose up
     ```
 - default port: 8080
-- docker port: 8000
 ## API Endpoints
 
 **Postman API documentation:**
