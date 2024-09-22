@@ -8,7 +8,7 @@ create table if not exists users
     role     varchar(255) not null
 );
 
-create table limits
+create table if not exists limits
 (
     id                  serial primary key,
     limit_sum           numeric    default 1000.0,
