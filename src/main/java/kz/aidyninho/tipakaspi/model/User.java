@@ -9,6 +9,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
@@ -30,5 +31,6 @@ public class User {
     private Role role;
     @OneToMany(mappedBy = "user")
     @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Set<Account> accounts = new HashSet<>();
 }

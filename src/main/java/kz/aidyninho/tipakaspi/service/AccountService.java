@@ -49,8 +49,6 @@ public class AccountService {
                 .limit(limit)
                 .build();
 
-        limitService.save(limit);
-
         log.info("Saving account {}", account);
         return accountRepository.save(account);
     }

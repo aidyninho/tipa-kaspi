@@ -1,6 +1,7 @@
 package kz.aidyninho.tipakaspi.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -12,6 +13,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
@@ -32,11 +34,12 @@ public class Account {
     private BigDecimal balance;
     @ManyToOne
     @JoinColumn(name = "user_phone")
-    @ToString.Exclude
     @JsonIgnore
     private User user;
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "limit_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @JsonIgnore
     private Limit limit;
 }
